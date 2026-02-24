@@ -17,10 +17,23 @@ The lab simulates a real enterprise SOC environment with attack simulation and a
 
 Lab Architecture
 🔹 Virtual Environment
-System	   Role
 
 Ubuntu	   Wazuh Manager + Indexer + Dashboard
 
 Kali Linux	Attacker + Agent
 
 Windows 10	Agent + Sysmon
+
+🔹 Network Configuration
+
+Host-Only Adapter → Internal SOC traffic
+
+NAT Adapter → Internet updates
+
+Machine	         IP Address
+
+Ubuntu	          192.168.56.104
+
+Kali	            192.168.56.105
+
+Windows 10	      192.168.56.106
