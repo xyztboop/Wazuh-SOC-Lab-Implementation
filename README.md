@@ -161,3 +161,107 @@ run_on_start = yes → Scan immediately after restart
 
 <img width="577" height="133" alt="Screenshot 2026-02-21 141319" src="https://github.com/user-attachments/assets/6d5a1a63-ca40-4809-b2a7-d51518d9f8e2" />
 
+# WEEK 3 – Intrusion Prevention System (IPS)
+
+## Aim:
+Simulate an SSH brute force attack and automatically block attacker IP using Wazuh Active Response.
+## SSH Setup (Ubuntu)
+```
+sudo apt install openssh-server -y
+sudo systemctl start ssh
+```
+<img width="940" height="533" alt="image" src="https://github.com/user-attachments/assets/e422ace1-80b1-48f8-aa99-cd9925302aba" />
+
+##  Brute Force Attack (Kali)
+```
+hydra -l sakshi -P /usr/share/wordlists/rockyou.txt -t 4 ssh://192.168.56.104
+```
+<img width="940" height="266" alt="image" src="https://github.com/user-attachments/assets/9bd6b04e-8342-448c-8d90-e48bade2a1c7" />
+##  Detection in Wazuh
+
+Search query used:
+```
+rule.id:5710 OR rule.id:5712 OR rule.id:5716
+```
+<img width="940" height="529" alt="image" src="https://github.com/user-attachments/assets/fdf5be6f-9283-4fd2-93cf-d95ba3c72663" />
+
+##  Active Response Configuration:
+
+Added inside ossec.conf:
+```
+<active-response>
+  <command>firewall-drop</command>
+  <location>local</location>
+  <rules_id>5710,5712,5716</rules_id>
+  <timeout>600</timeout>
+</active-response>
+```
+##  Restarted service:
+```
+sudo systemctl restart wazuh-manager
+```
+<img width="756" height="263" alt="image" src="https://github.com/user-attachments/assets/c1a98623-31c7-4c8e-bc69-474ae8b643f5" />
+
+<img width="940" height="77" alt="image" src="https://github.com/user-attachments/assets/399a3e3d-567d-4bec-8a82-d38c2e85bc42" />
+##  Automatic IP Blocking:
+
+After attack:
+
+Hydra stopped
+
+SSH connection denied
+
+Firewall rule inserted automatically
+Verification:
+```
+ssh sakshi@192.168.56.104
+```
+<img width="940" height="63" alt="image" src="https://github.com/user-attachments/assets/2492ef90-4d83-45b6-bb84-bf383521a9fc" />
+
+<img width="940" height="276" alt="image" src="https://github.com/user-attachments/assets/d96069a0-0c7f-46db-87f4-348522c52404" />
+
+## Alerts summary
+<img width="940" height="391" alt="image" src="https://github.com/user-attachments/assets/033fcc3c-c294-466c-92f5-8d28e1ad9884" />
+
+| Phase       | Action Performed              | Outcome |
+|------------|------------------------------|----------|
+| **Attack** | SSH brute force using Hydra  | Multiple failed login attempts generated |
+| **Detection** | Wazuh rules 5710 / 5712 triggered | Security alerts created in dashboard |
+| **Response** | `firewall-drop` active response executed | Attacker IP automatically blocked |
+| **Validation** | SSH connection retried from Kali | Access denied / Connection blocked |
+
+---
+
+# 🧰 Technologies Used
+
+- **Wazuh SIEM**
+- **Ubuntu Linux**
+- **Kali Linux**
+- **Windows 10**
+- **Sysmon**
+- **Hydra**
+- **VirtualBox**
+- **Linux Firewall (iptables)**
+
+---
+
+# 🎓 Skills Demonstrated
+
+- **SOC architecture deployment**
+- **Log monitoring and analysis**
+- **Attack simulation**
+- **Detection rule validation**
+- **Intrusion prevention configuration**
+- **Firewall automation**
+- **Real-time incident validation**
+- **Troubleshooting and debugging**
+
+---
+
+# 🏁 Final Conclusion
+
+This project successfully demonstrates a complete SOC lifecycle:
+
+> **Monitoring → Detection → Alerting → Automated Response → Validation**
+
+The lab replicates enterprise-level security monitoring and automated threat mitigation using Wazuh. It highlights practical implementation of defensive security engineering and real-world SOC operations.
