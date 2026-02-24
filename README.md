@@ -14,3 +14,10 @@ Custom Detection Rules,
 Intrusion Prevention using Active Response (IPS).
 
 The lab simulates a real enterprise SOC environment with attack simulation and automated mitigation.
+
+Lab Architecture
+🔹 Virtual Environment
+System	Role
+Ubuntu	Wazuh Manager + Indexer + Dashboard
+Kali Linux	Attacker + Agent
+Windows 10	Agent + Sysmon
