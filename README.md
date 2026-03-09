@@ -265,3 +265,136 @@ This project successfully demonstrates a complete SOC lifecycle:
 > **Monitoring → Detection → Alerting → Automated Response → Validation**
 
 The lab replicates enterprise-level security monitoring and automated threat mitigation using Wazuh. It highlights practical implementation of defensive security engineering and real-world SOC operations.
+
+# WEEK 4 – Threat Simulation & MITRE ATT&CK Visualization
+
+## 🎯 Objective
+
+Simulate adversary behavior and observe how **Wazuh SIEM detects the activity and maps it to the MITRE ATT&CK framework**.  
+This exercise demonstrates how SOC analysts monitor suspicious activity and analyze attack stages through a **kill chain visualization**.
+
+---
+
+## 🧪 Threat Simulation
+
+A suspicious command was executed on the Windows endpoint to generate activity monitored by **Sysmon** and analyzed by **Wazuh**.
+
+Command executed on **Windows PowerShell (Administrator):**
+```
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Process"
+```
+
+<img width="940" height="471" alt="image" src="https://github.com/user-attachments/assets/8705c188-5b68-4a90-92ce-251f2e786ee0" />
+
+
+Purpose:
+
+- Generate **process creation events**
+- Allow **Sysmon to log command execution**
+- Send telemetry to **Wazuh SIEM**
+
+---
+
+## ⚙️ Sysmon Log Verification
+
+To confirm that Sysmon was generating endpoint logs, the following command was executed:
+```
+Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -MaxEvents 5
+```
+
+Observed events included:
+
+- **Event ID 1 – Process Create**
+- **Event ID 11 – File Create**
+
+These logs provide the telemetry required for threat detection in the SOC environment.
+
+<img width="940" height="298" alt="image" src="https://github.com/user-attachments/assets/c691b3a4-4d91-40d2-b28d-510ad3c80e27" />
+
+
+---
+
+## 🔧 Wazuh Agent Configuration
+
+To enable Sysmon log collection, the Wazuh agent configuration file was modified.
+
+##  File edited:
+```
+C:\Program Files (x86)\ossec-agent\ossec.conf
+```
+##  Configuration added:
+```
+<localfile> <location>Microsoft-Windows-Sysmon/Operational</location> <log_format>eventchannel</log_format> </localfile>
+```
+
+<img width="913" height="433" alt="image" src="https://github.com/user-attachments/assets/fb80af49-bbc1-48e1-b414-c8abe7f16f41" />
+
+After updating the configuration, the Wazuh agent was restarted:
+```
+Restart-Service wazuh
+```
+Detection in Wazuh:
+## 🚨 Detection in Wazuh
+
+The suspicious activity generated alerts in the **Wazuh Security Events dashboard**.
+
+Example alert detected:
+
+| Field | Value |
+|------|------|
+| **Rule ID** | 92213 |
+| **Alert Level** | 15 |
+| **Description** | Executable file dropped in folder commonly used by malware |
+
+This alert indicates that **Wazuh successfully detected suspicious activity on the monitored Windows endpoint**.  
+
+<img width="940" height="132" alt="image" src="https://github.com/user-attachments/assets/12566ede-2b70-453c-8229-16817c0090b4" />
+
+## 🧠 MITRE ATT&CK Mapping
+
+The detected alert was automatically mapped to the **MITRE ATT&CK framework**, which helps security analysts understand attacker behavior and classify threats according to standardized adversary techniques.
+
+| MITRE Technique | T1105 |
+|----------------|------|
+| MITRE Tactic | Command and Control |
+
+### Technique Explanation
+
+**T1105 – Ingress Tool Transfer**
+
+This technique represents a stage where attackers transfer tools or malicious payloads into a compromised system. These tools may be used to establish command-and-control communication, perform lateral movement, or execute further malicious activities within the target environment.
+
+In this lab, the suspicious activity detected by **Wazuh SIEM** was mapped to this MITRE technique, allowing analysts to clearly understand the adversary behavior and visualize the attack stage within the **cyber kill chain**.
+
+This mapping helps SOC teams quickly categorize threats and respond effectively to potential security incidents.
+<img width="940" height="334" alt="image" src="https://github.com/user-attachments/assets/1ec1d33e-30c0-4275-8aab-33994e4a138a" />
+
+## 🔗 Kill Chain Visualization
+
+The attack detection workflow observed in the SOC lab:
+
+Suspicious command execution
+        ↓
+Sysmon logs system activity
+        ↓
+Wazuh agent forwards logs
+        ↓
+Wazuh detection rule triggered
+        ↓
+Alert mapped to MITRE ATT&CK
+        ↓
+Visualization in Wazuh dashboard
+
+This demonstrates how a SOC analyst can trace attacker behavior across different stages of the **cyber kill chain**.
+
+## ✅ Result
+
+The threat simulation successfully generated endpoint telemetry captured by **Sysmon** and analyzed by **Wazuh**. The SIEM system generated alerts and mapped the detected activity to **MITRE ATT&CK techniques**, allowing analysts to visualize attacker behavior and investigate potential threats.
+
+---
+
+## 🏁 Conclusion
+
+This exercise demonstrated how integrating **Sysmon with Wazuh SIEM** enables detailed monitoring of endpoint activity. By correlating system logs with detection rules and **MITRE ATT&CK techniques**, SOC analysts can identify malicious behavior and respond to threats in real time.
+
+
